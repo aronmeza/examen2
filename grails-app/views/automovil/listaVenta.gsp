@@ -26,8 +26,6 @@
 					
 						<g:sortableColumn property="marca" title="${message(code: 'automovil.marca.label', default: 'Marca')}" />
 					
-						<g:sortableColumn property="vendido" title="${message(code: 'automovil.vendido.label', default: 'Vendido')}" />
-					
 						<g:sortableColumn property="venta" title="${message(code: 'automovil.venta.label', default: 'Venta')}" />
 					
 					</tr>
@@ -42,22 +40,10 @@
 					
 						<td>${fieldValue(bean: automovilInstance, field: "marca")}</td>
 					
-                                                  <td>
-                                                  <g:if test="${automovilInstance.vendido}">
-                                                <img src="${resource(dir: 'images', file: 'sold.gif')}" style="heigth:50px; width:70px" alt="ForSale"/>
-                                                </g:if>
-                                                  <g:else>
-                                                    No
-                                                  </g:else>
-                                                </td>
-					
-                                                  <td>
+						<td>
                                                   <g:if test="${automovilInstance.venta != null}">
                                                 <img src="${resource(dir: 'images', file: 'for-sale.gif')}" style="heigth:50px; width:70px" alt="ForSale"/>
                                                 </g:if>
-                                                   <g:else>
-                                                    No
-                                                  </g:else>
                                                 </td>
 					
 					</tr>

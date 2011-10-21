@@ -7,6 +7,7 @@ class AutomovilController {
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
     def index() {
+	println "----------------------$params"
         redirect(action: "list", params: params)
     }
 
@@ -17,17 +18,53 @@ class AutomovilController {
 
     def listaVendidos() {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
-        render(view:'list',model:[automovilInstanceList: Automovil.findAllByVendido(true), automovilInstanceTotal: Automovil.count()])
+        [automovilInstanceList: Automovil.findAllByVendido(true), automovilInstanceTotal: Automovil.count()]
     }
 
     def listaVenta() {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
-	render(view:'list',model:[automovilInstanceList: Automovil.findAllByVenta(true), automovilInstanceTotal: Automovil.count()])
+	[automovilInstanceList: Automovil.findAllByVenta(true), automovilInstanceTotal: Automovil.count()]
     }
 
     def create() {
+	println "----------------------$params"
         [automovilInstance: new Automovil(params)]
     }
+    def saveMin(){
+println "----------------------$params"
+	if(params?.marca){
+		if(params?.costoVenta){
+			if(params?.costoCompra){
+				def automovil = new Automovil(
+				marca:params.marca,
+				costoCompra: params.costoCompra,
+				costoVenta:params.costoVenta
+				).save(flush:true)
+                                println "------------$automovil.id"
+				def automovilInstance = Automovil.get(automovil.id)
+				render(view: "edit", model: [automovilInstance: automovilInstance])
+			}
+		}
+	}
+	}
+        def saveCostoExtraMin(){
+println "----------------------$params"
+		if(params?.descripcion){
+			if(params?.costo){
+                            if(params?.idAuto){
+                                def automovil = Automovil.get(params.idAuto)
+				def costoExtra = new CostoExtra(
+				descripcion:params.descripcion,
+				costo: params.costo,
+				automovil:automovil
+				).save(flush:true)
+				def automovilInstance = Automovil.get(automovil.id)
+                                println "terminado $automovilInstance.id"
+				render(view: "edit", controller:"automovil" ,model: [automovilInstance: automovilInstance])
+                                }
+			}
+		}
+	}
 
     def save() {
         def automovilInstance = new Automovil(params)
@@ -52,6 +89,7 @@ class AutomovilController {
     }
 
     def edit() {
+        println "-----Entro a edit del controller"
         def automovilInstance = Automovil.get(params.id)
         if (!automovilInstance) {
             flash.message = message(code: 'default.not.found.message', args: [message(code: 'automovil.label', default: 'Automovil'), params.id])
@@ -110,4 +148,17 @@ class AutomovilController {
             redirect(action: "show", id: params.id)
         }
     }
+    
+    def buscaMarca() {
+		log.debug("Params: $params")
+		def filtro = "%$params.term%"
+			println filtro +"---------------"
+		def autos = Automovil.findAllByMarcaIlike(filtro)
+
+		def lista = []
+		for(auto in autos) {
+		    lista << [ value:auto.marca]
+		}
+		render lista as grails.converters.JSON
+	    }
 }

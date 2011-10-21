@@ -8,10 +8,10 @@ class CostoExtra {
 
    static constraints = {
 	descripcion(blank:false)
-	costo(blank:false, scale:8, presicion:2)
+	costo(blank:false, scale:2, presicion:8)
     }
 
 	String toString(){
-	 return descripcion;
+	 return "$descripcion : $costo";
 	}
 }
