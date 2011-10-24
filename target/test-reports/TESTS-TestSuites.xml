@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites>
+  <testsuite errors="0" failures="0" hostname="aronmeza" id="0" name="AutomovilControllerIntegrationTests" package="clase" tests="1" time="2.053" timestamp="2011-10-24T19:58:33">
+      <properties />
+
+      <testcase classname="clase.AutomovilControllerIntegrationTests" name="testSomething" time="2.026" />
+
+      <system-out><![CDATA[--Output from testSomething--
+]]></system-out>
+
+      <system-err><![CDATA[--Output from testSomething--
+]]></system-err>
+
+  </testsuite>
+  <testsuite errors="0" failures="0" hostname="aronmeza" id="1" name="CostoExtraControllerIntegrationTests" package="clase" tests="1" time="7.57" timestamp="2011-10-24T19:58:26">
+      <properties />
+
+      <testcase classname="clase.CostoExtraControllerIntegrationTests" name="testSomething" time="7.404" />
+
+      <system-out><![CDATA[--Output from testSomething--
+]]></system-out>
+
+      <system-err><![CDATA[--Output from testSomething--
+]]></system-err>
+
+  </testsuite>
+</testsuites>
