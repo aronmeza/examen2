@@ -31,12 +31,14 @@ class AutomovilController {
     def saveUsuario(){
         def usuarioInstance = new general.Usuario(params)
         if (!usuarioInstance.save(flush: true)) {
-            flash.message = message(code:'default.error.usuario.message',args: [message(code: 'usuario.label', default: 'Usuario'), params.id])
+            flash.message = "El usuario no se pudo guardar"
             redirect(action:"listaVenta")
         }else{
             def rol = general.Rol.findByAuthority('ROLE_USER')
             general.UsuarioRol.create(usuarioInstance, rol , true)
+            springSecurityService.reauthenticate usuarioInstance.username
             flash.message = message(code: 'default.created.message', args: [message(code: 'usuario.label', default: 'Usuario'), usuarioInstance.id])
+            redirect (action:"comprar")
         }
     }
   

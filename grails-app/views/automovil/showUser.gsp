@@ -77,8 +77,9 @@
         </li>
       </g:if>
       <g:if test="${usuarioInstance?.autosComprados}">
-        <g:each in="${usuarioInstance.autosComprados}">
-          <li>Marca: ${it.marca}</li>
+        <span class="property-label">Autos comprados:</span>
+        <g:each var="itAutos" in="${usuarioInstance.autosComprados}">
+          <li class="fieldcontain"><span class="property-value">Marca: ${itAutos.marca}</span></li>
           
         </g:each>
       </g:if>
