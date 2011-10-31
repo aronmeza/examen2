@@ -9,6 +9,7 @@ class Automovil {
 	boolean vendido = false
 	
 	static hasMany = [costoExtra:CostoExtra]
+        static belongsTo = [usuario: general.Usuario ]
 
     static constraints = {
 	costoCompra(blank:false, scale:2, presicion:8)

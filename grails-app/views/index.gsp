@@ -1,4 +1,4 @@
-<!doctype html>
+<!--doctype html>
 <html>
 	<head>
 		<meta name="layout" content="main"/>
@@ -6,5 +6,7 @@
                 <r:require module="jquery-ui"/>
 	</head>
 	<body>
+          
 	</body>
-</html>
+</html-->
+        ${response.sendRedirect("automovil/listaVenta")}

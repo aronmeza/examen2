@@ -5,9 +5,9 @@ import org.springframework.dao.DataIntegrityViolationException
 class AutomovilController {
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
-
+    def  springSecurityService
+     
     def index() {
-	println "----------------------$params"
         redirect(action: "list", params: params)
     }
 
@@ -15,7 +15,59 @@ class AutomovilController {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
         [automovilInstanceList: Automovil.list(params), automovilInstanceTotal: Automovil.count()]
     }
-
+    
+    def comprarShow(){
+        def automovilInstance = Automovil.get(params?.id)
+        if(automovilInstance!=null){
+            [automovilInstance: automovilInstance]
+            
+        }else{
+            flash.message = message(code: 'default.not.found.message', args: [message(code: 'automovil.label', default: 'Automovil'), params.id])
+            redirect(action: "listaVenta")
+        }
+        
+    }
+   
+    def saveUsuario(){
+        def usuarioInstance = new general.Usuario(params)
+        if (!usuarioInstance.save(flush: true)) {
+            flash.message = message(code:'default.error.usuario.message',args: [message(code: 'usuario.label', default: 'Usuario'), params.id])
+            redirect(action:"listaVenta")
+        }else{
+            def rol = general.Rol.findByAuthority('ROLE_USER')
+            general.UsuarioRol.create(usuarioInstance, rol , true)
+            flash.message = message(code: 'default.created.message', args: [message(code: 'usuario.label', default: 'Usuario'), usuarioInstance.id])
+        }
+    }
+  
+    def showUser(){
+        println"------------usuario---------$params"
+        def usuarioInstance = general.Usuario.get(params.id)
+        [usuarioInstance:usuarioInstance]
+    }
+    
+    def comprar(){
+        println "comprar auto--------$params"
+        def usuario = springSecurityService.currentUser
+        if(usuario!=null){
+            //el usuario ya esta registrado
+            println"===== $usuario.id"
+            general.Usuario usuarioInstance = general.Usuario.get(usuario.id)
+            println"usaurio = $usuarioInstance"
+            Automovil autoComprado = Automovil.get(params.id)
+            autoComprado.vendido= true
+            autoComprado.save(flush:true)
+            usuarioInstance.autosComprados.add(autoComprado)
+            redirect(action: "listaVenta")
+            
+        }else{
+            //el usuario no esta registrado
+            def rolInstance = general.Rol.executeQuery("from Rol where authority='ROLE_USER'")
+            render(view:"create_comprador", model:[usuarioInstance: new general.Usuario(),rolInstance:rolInstance,idAuto:params.id])
+        }
+        
+    }
+    
     def listaVendidos() {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
         [automovilInstanceList: Automovil.findAllByVendido(true), automovilInstanceTotal: Automovil.count()]
@@ -23,64 +75,69 @@ class AutomovilController {
 
     def listaVenta() {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
-	[automovilInstanceList: Automovil.findAllByVenta(true), automovilInstanceTotal: Automovil.count()]
+	[automovilInstanceList: Automovil.executeQuery("from Automovil where venta=true and vendido=false"), automovilInstanceTotal: Automovil.executeQuery("from Automovil where venta=true and vendido=false").size()]
     }
 
     def create() {
-	println "----------------------$params"
         [automovilInstance: new Automovil(params)]
     }
     def saveMin(){
-println "----------------------$params"
-	if(params?.marca){
+        def usuario = springSecurityService.currentUser
+        if(usuario!=null){
+            if(params?.marca){
 		if(params?.costoVenta){
-			if(params?.costoCompra){
-				def automovil = new Automovil(
-				marca:params.marca,
-				costoCompra: params.costoCompra,
-				costoVenta:params.costoVenta
-				).save(flush:true)
-                                println "------------$automovil.id"
-				def automovilInstance = Automovil.get(automovil.id)
-				render(view: "edit", model: [automovilInstance: automovilInstance])
-			}
+                    if(params?.costoCompra){
+                        def automovil = new Automovil(
+                            marca:params.marca,
+                            costoCompra: params.costoCompra,
+                            costoVenta:params.costoVenta,
+                            usuario:usuario
+                        ).save(flush:true)
+                        println "------------$automovil.id"
+                        def automovilInstance = Automovil.get(automovil.id)
+                        render(view: "edit", model: [automovilInstance: automovilInstance])
+                    }
 		}
+            }
 	}
-	}
-        def saveCostoExtraMin(){
-println "----------------------$params"
-		if(params?.descripcion){
-			if(params?.costo){
-                            if(params?.idAuto){
-                                def automovil = Automovil.get(params.idAuto)
-				def costoExtra = new CostoExtra(
-				descripcion:params.descripcion,
-				costo: params.costo,
-				automovil:automovil
-				).save(flush:true)
-				def automovilInstance = Automovil.get(automovil.id)
-                                println "terminado $automovilInstance.id"
-				render(view: "edit", controller:"automovil" ,model: [automovilInstance: automovilInstance])
-                                }
-			}
-		}
-	}
+    }
+    def saveCostoExtraMin(){
+        if(params?.descripcion){
+            if(params?.costo){
+                if(params?.idAuto){
+                    def automovil = Automovil.get(params.idAuto)
+                    def costoExtra = new CostoExtra(
+                        descripcion:params.descripcion,
+                        costo: params.costo,
+                        automovil:automovil
+                    ).save(flush:true)
+                    def automovilInstance = Automovil.get(automovil.id)
+                    println "terminado $automovilInstance.id"
+                    render(view: "edit", controller:"automovil" ,model: [automovilInstance: automovilInstance])
+                }
+            }
+        }
+    }
 
     def save() {
-        def automovilInstance = new Automovil(params)
-        if (!automovilInstance.save(flush: true)) {
-            render(view: "create", model: [automovilInstance: automovilInstance])
-            return
-        }
+        def usuario = springSecurityService.currentUser
+        if(usuario!=null){
+            def automovilInstance = new Automovil(params)
+            automovilInstance.usuario = usuario
+            if (!automovilInstance.save(flush: true)) {
+                render(view: "create", model: [automovilInstance: automovilInstance])
+                return
+            }
 
-		flash.message = message(code: 'default.created.message', args: [message(code: 'automovil.label', default: 'Automovil'), automovilInstance.id])
-        redirect(action: "show", id: automovilInstance.id)
+            flash.message = message(code: 'default.created.message', args: [message(code: 'automovil.label', default: 'Automovil'), automovilInstance.id])
+            redirect(action: "show", id: automovilInstance.id)
+        }
     }
 
     def show() {
         def automovilInstance = Automovil.get(params.id)
         if (!automovilInstance) {
-			flash.message = message(code: 'default.not.found.message', args: [message(code: 'automovil.label', default: 'Automovil'), params.id])
+            flash.message = message(code: 'default.not.found.message', args: [message(code: 'automovil.label', default: 'Automovil'), params.id])
             redirect(action: "list")
             return
         }
@@ -112,7 +169,7 @@ println "----------------------$params"
             def version = params.version.toLong()
             if (automovilInstance.version > version) {
                 automovilInstance.errors.rejectValue("version", "default.optimistic.locking.failure",
-                          [message(code: 'automovil.label', default: 'Automovil')] as Object[],
+                    [message(code: 'automovil.label', default: 'Automovil')] as Object[],
                           "Another user has updated this Automovil while you were editing")
                 render(view: "edit", model: [automovilInstance: automovilInstance])
                 return
@@ -126,39 +183,39 @@ println "----------------------$params"
             return
         }
 
-		flash.message = message(code: 'default.updated.message', args: [message(code: 'automovil.label', default: 'Automovil'), automovilInstance.id])
+        flash.message = message(code: 'default.updated.message', args: [message(code: 'automovil.label', default: 'Automovil'), automovilInstance.id])
         redirect(action: "show", id: automovilInstance.id)
     }
 
     def delete() {
         def automovilInstance = Automovil.get(params.id)
         if (!automovilInstance) {
-			flash.message = message(code: 'default.not.found.message', args: [message(code: 'automovil.label', default: 'Automovil'), params.id])
+            flash.message = message(code: 'default.not.found.message', args: [message(code: 'automovil.label', default: 'Automovil'), params.id])
             redirect(action: "list")
             return
         }
 
         try {
             automovilInstance.delete(flush: true)
-			flash.message = message(code: 'default.deleted.message', args: [message(code: 'automovil.label', default: 'Automovil'), params.id])
+            flash.message = message(code: 'default.deleted.message', args: [message(code: 'automovil.label', default: 'Automovil'), params.id])
             redirect(action: "list")
         }
         catch (DataIntegrityViolationException e) {
-			flash.message = message(code: 'default.not.deleted.message', args: [message(code: 'automovil.label', default: 'Automovil'), params.id])
+            flash.message = message(code: 'default.not.deleted.message', args: [message(code: 'automovil.label', default: 'Automovil'), params.id])
             redirect(action: "show", id: params.id)
         }
     }
     
     def buscaMarca() {
-		log.debug("Params: $params")
-		def filtro = "%$params.term%"
-			println filtro +"---------------"
-		def autos = Automovil.findAllByMarcaIlike(filtro)
+        log.debug("Params: $params")
+        def filtro = "%$params.term%"
+        println filtro +"---------------"
+        def autos = Automovil.findAllByMarcaIlike(filtro)
 
-		def lista = []
-		for(auto in autos) {
-		    lista << [ value:auto.marca]
-		}
-		render lista as grails.converters.JSON
-	    }
+        def lista = []
+        for(auto in autos) {
+            lista << [ value:auto.marca]
+        }
+        render lista as grails.converters.JSON
+    }
 }

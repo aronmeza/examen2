@@ -30,7 +30,18 @@
 	</head>
 	<body>
 		<div id="grailsLogo" role="banner"><a href="http://grails.org"><img src="${resource(dir: 'images', file: 'grails_logo.png')}" alt="Grails"/></a></div>
-		 <g:render template="/common/header"/>			
+	<div id="usuario" >
+    <sec:ifLoggedIn>
+      <g:message code="default.welcome"/> <sec:loggedInUserInfo field="username" /><br/>
+      <g:link class="perfil" controller="logout" style="color:white;font-weight:normal;"><g:message code="default.logout" /></g:link>
+    </sec:ifLoggedIn>
+    <sec:ifNotLoggedIn> 
+
+      <g:link class="perfil" controller="login" style="color:white;font-weight:normal;"><g:message code="default.login"/></g:link>
+    </sec:ifNotLoggedIn> 
+  </div>	 
+        <g:render template="/common/header"/>	
+                 
 		
 		<g:layoutBody/>
 

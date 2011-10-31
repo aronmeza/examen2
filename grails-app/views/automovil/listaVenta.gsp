@@ -27,6 +27,8 @@
 						<g:sortableColumn property="marca" title="${message(code: 'automovil.marca.label', default: 'Marca')}" />
 					
 						<g:sortableColumn property="venta" title="${message(code: 'automovil.venta.label', default: 'Venta')}" />
+                                                
+                                                <g:sortableColumn property="id" title="${message(code: 'automovil.comprar.label', default: 'Comprar')}" />
 					
 					</tr>
 				</thead>
@@ -45,7 +47,8 @@
                                                 <img src="${resource(dir: 'images', file: 'for-sale.gif')}" style="heigth:50px; width:70px" alt="ForSale"/>
                                                 </g:if>
                                                 </td>
-					
+                                                <td><g:link action="comprarShow" id="${automovilInstance.id}">${message(code: 'automovil.comprar.label', default: 'Comprar')}</g:link>
+                                                </td>
 					</tr>
 				</g:each>
 				</tbody>

@@ -14,6 +14,8 @@
         <li tabindex="0"><a id="creates-auto" href="#"><g:message code="default.automovil.new" default="Agregar Auto"/></a></li>
       </ul>
     </li> 
+    <li tabindex="0"><h2><g:link action="list" controller="usuario"><g:message code="default.usuario.label" default="Usuario"/></g:link></h2>
+    </li> 
   </ul>
 
   </nav>

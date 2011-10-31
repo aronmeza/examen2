@@ -1,6 +1,8 @@
 // locations to search for config files that get merged into the main config
 // config files can either be Java properties files or ConfigSlurper scripts
 
+grails.config.locations = [ "file:${userHome}/.grails/${appName}-config.groovy" ]
+
 // grails.config.locations = [ "classpath:${appName}-config.properties",
 //                             "classpath:${appName}-config.groovy",
 //                             "file:${userHome}/.grails/${appName}-config.properties",
@@ -60,6 +62,7 @@ grails.exceptionresolver.params.exclude = ['password']
 environments {
     development {
         grails.logging.jul.usebridge = true
+        grails.gsp.enable.reload = true
     }
     production {
         grails.logging.jul.usebridge = false
@@ -88,3 +91,17 @@ log4j = {
            'org.hibernate',
            'net.sf.ehcache.hibernate'
 }
+
+grails.gorm.failOnError = false
+grails.gorm.default.mapping = {
+   id generator:'identity'
+}
+
+// Added by the Spring Security Core plugin:
+grails.plugins.springsecurity.userLookup.userDomainClassName = 'general.Usuario'
+grails.plugins.springsecurity.userLookup.authorityJoinClassName = 'general.UsuarioRol'
+grails.plugins.springsecurity.authority.className = 'general.Rol'
+grails.plugins.springsecurity.roleHierarchy='''
+    ROLE_ADMIN > ROLE_VENDEDOR
+    ROLE_VENDEDOR > ROLE_USER
+'''

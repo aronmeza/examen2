@@ -41,7 +41,6 @@
 					
 						<td>${fieldValue(bean: automovilInstance, field: "marca")}</td>
 					
-						<td>
                                                   <td>
                                                   <g:if test="${automovilInstance.vendido != null}">
                                                 <img src="${resource(dir: 'images', file: 'sold.gif')}" style="heigth:50px; width:70px" alt="ForSale"/>
