@@ -1,7 +1,9 @@
 package clase
 
 import org.springframework.dao.DataIntegrityViolationException
+import grails.plugins.springsecurity.Secured
 
+@Secured(['ROLE_VENDEDOR'])
 class CostoExtraController {
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]

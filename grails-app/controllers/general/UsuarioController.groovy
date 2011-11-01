@@ -1,6 +1,7 @@
 package general
 
 import org.springframework.dao.DataIntegrityViolationException
+import grails.plugins.springsecurity.Secured
 
 class UsuarioController {
 
@@ -10,7 +11,8 @@ class UsuarioController {
     def index() {
         redirect(action: "list", params: params)
     }
-
+    
+    @Secured(['ROLE_VENDEDOR'])
     def list() {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
         [usuarioInstanceList: Usuario.list(params), usuarioInstanceTotal: Usuario.count()]
@@ -35,10 +37,8 @@ class UsuarioController {
     }
 
     def save() {
-        
         def usuarioInstance = new Usuario(params)
         if (!usuarioInstance.save(flush: true)) {
-            
             def usuario = springSecurityService.currentUser
             def rolInstance = Rol.executeQuery("from Rol where authority='ROLE_USER'")
             if(usuario!=null){
@@ -62,8 +62,7 @@ class UsuarioController {
             render(view: "create", model: [usuarioInstance: usuarioInstance])
             
         }
-        
-        if(params.authority != null){
+        if(params.authority == null){
             render(view: "create", model: [usuarioInstance: usuarioInstance])
             return
         }

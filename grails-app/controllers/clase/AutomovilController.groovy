@@ -1,6 +1,7 @@
 package clase
 
 import org.springframework.dao.DataIntegrityViolationException
+import grails.plugins.springsecurity.Secured
 
 class AutomovilController {
 
@@ -10,7 +11,7 @@ class AutomovilController {
     def index() {
         redirect(action: "list", params: params)
     }
-
+    @Secured(['ROLE_ADMIN'])
     def list() {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
         [automovilInstanceList: Automovil.list(params), automovilInstanceTotal: Automovil.count()]
@@ -29,6 +30,7 @@ class AutomovilController {
     }
    
     def saveUsuario(){
+        println "-----saveUsuario-------$params"
         def usuarioInstance = new general.Usuario(params)
         if (!usuarioInstance.save(flush: true)) {
             flash.message = "El usuario no se pudo guardar"
@@ -38,7 +40,7 @@ class AutomovilController {
             general.UsuarioRol.create(usuarioInstance, rol , true)
             springSecurityService.reauthenticate usuarioInstance.username
             flash.message = message(code: 'default.created.message', args: [message(code: 'usuario.label', default: 'Usuario'), usuarioInstance.id])
-            redirect (action:"comprar")
+            redirect (action:"comprar", id:params.idAuto)
         }
     }
   
@@ -70,11 +72,12 @@ class AutomovilController {
         
     }
     
+    @Secured(['ROLE_VENDEDOR'])
     def listaVendidos() {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
         [automovilInstanceList: Automovil.findAllByVendido(true), automovilInstanceTotal: Automovil.count()]
     }
-
+   
     def listaVenta() {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
 	[automovilInstanceList: Automovil.executeQuery("from Automovil where venta=true and vendido=false"), automovilInstanceTotal: Automovil.executeQuery("from Automovil where venta=true and vendido=false").size()]
@@ -83,6 +86,8 @@ class AutomovilController {
     def create() {
         [automovilInstance: new Automovil(params)]
     }
+    
+    @Secured(['ROLE_VENDEDOR'])
     def saveMin(){
         def usuario = springSecurityService.currentUser
         if(usuario!=null){
@@ -103,6 +108,8 @@ class AutomovilController {
             }
 	}
     }
+    
+    @Secured(['ROLE_VENDEDOR'])
     def saveCostoExtraMin(){
         if(params?.descripcion){
             if(params?.costo){
@@ -120,7 +127,8 @@ class AutomovilController {
             }
         }
     }
-
+    
+    @Secured(['ROLE_VENDEDOR'])
     def save() {
         def usuario = springSecurityService.currentUser
         if(usuario!=null){
@@ -146,7 +154,8 @@ class AutomovilController {
 
         [automovilInstance: automovilInstance]
     }
-
+    
+    @Secured(['ROLE_VENDEDOR'])
     def edit() {
         println "-----Entro a edit del controller"
         def automovilInstance = Automovil.get(params.id)
@@ -158,7 +167,8 @@ class AutomovilController {
 
         [automovilInstance: automovilInstance]
     }
-
+    
+    @Secured(['ROLE_VENDEDOR'])
     def update() {
         def automovilInstance = Automovil.get(params.id)
         if (!automovilInstance) {
