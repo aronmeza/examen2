@@ -43,11 +43,14 @@ class AutomovilController {
             redirect (action:"comprar", id:params.idAuto)
         }
     }
-  
+    @Secured(['ROLE_USER'])
     def showUser(){
         println"------------usuario---------$params"
-        def usuarioInstance = general.Usuario.get(params.id)
-        [usuarioInstance:usuarioInstance]
+        def usuario = springSecurityService.currentUser
+        if(usuario!=null){
+            def usuarioInstance = general.Usuario.getByUsername(usuario.username)
+            [usuarioInstance:usuarioInstance]
+        }
     }
     
     def comprar(){
